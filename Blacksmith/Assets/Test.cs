@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Manabound.Card;
 using UnityEngine;
 
 public class Test : MonoBehaviour
