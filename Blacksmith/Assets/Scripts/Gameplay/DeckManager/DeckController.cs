@@ -15,7 +15,12 @@ public class DeckController
    
    public void Shuffle()
    {
-      
+      for (int i = 0; i < cardHolder.Count; i++) {
+         var temp = cardHolder[i];
+         int randomIndex = Random.Range(i, cardHolder.Count);
+         cardHolder[i] = cardHolder[randomIndex];
+         cardHolder[randomIndex] = temp;
+      }
    }
 
    public CardBase DrawCard()

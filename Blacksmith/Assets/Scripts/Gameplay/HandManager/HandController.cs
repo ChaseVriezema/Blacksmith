@@ -17,6 +17,7 @@ public class HandController
 
     public bool AddCard(CardBase card, bool faceUp = true)
     {
+        card.FaceUp = faceUp;
         cardsHeld.Add(card);
         return true;
     }
@@ -42,6 +43,11 @@ public class HandController
         return retList;
     }
 
+    public CardBase[] GetHeldCards()
+    {
+        return cardsHeld.ToArray();
+    }
+
     public int CalculateHandTotal(bool includeFaceDown = false)
     {
         int cardSum = 0;
@@ -51,7 +57,7 @@ public class HandController
         {
             logString += $"{card.ToString()}, ";
             var playingCard = card as PlayingCard;
-            if(includeFaceDown && !playingCard.FaceUp) continue;
+            if(!includeFaceDown && !playingCard.FaceUp) continue;
             if(playingCard.CardValue == PlayingCard.PlayingCardValue.Ace)
             {
                 numberOfAces ++;
@@ -61,7 +67,12 @@ public class HandController
                 cardSum += Mathf.Min(10, (int)playingCard.CardValue + 1);
             }
         }
-        Debug.Log($"{logString} is {(cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces)}.");
-        return cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces;
+        int total;
+        if(numberOfAces == 0)
+            total = cardSum;
+        else
+            total = cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces;
+        Debug.Log($"{logString} is {total}.");
+        return total;
     }
 }

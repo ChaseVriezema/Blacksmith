@@ -10,14 +10,13 @@ public class PlayingCardPresenter : MonoBehaviour
       public bool FaceUp;
       [SerializeField] private TextMeshPro nameText;
       [SerializeField] private TextMeshPro valueText;
-      [SerializeField] private MeshRenderer meshRenderer;
-      [SerializeField] private Shader cardShader;
       [SerializeField] private GameObject glow;
 
-      private static readonly int IconTexture = Shader.PropertyToID("IconTexture");
-      private static readonly int CardColor1 = Shader.PropertyToID("CardColor");
+      private static readonly string iconTexture = "Sprite";
+      private static readonly string cardColor = "BGColor";
 
-      private Material CardMaterial => meshRenderer.material;
+      private MeshRenderer meshRenderer;
+      private MaterialPropertyBlock propertyBlock;
 
       public string Name
       {
@@ -33,12 +32,19 @@ public class PlayingCardPresenter : MonoBehaviour
 
       public Sprite CardSprite
       {
-         set => CardMaterial.SetTexture(IconTexture, value.texture);
+         set 
+         {
+            propertyBlock.SetTexture(iconTexture, value.texture);
+            meshRenderer.SetPropertyBlock(propertyBlock);
+         }
       }
 
       public Color CardColor
       {
-         set => CardMaterial.SetColor(CardColor1, value);
+         set {
+            propertyBlock.SetColor(cardColor, value);
+            meshRenderer.SetPropertyBlock(propertyBlock);
+         }
       }
 
       public bool Glow
@@ -48,13 +54,16 @@ public class PlayingCardPresenter : MonoBehaviour
 
       public void Awake()
       {
-         meshRenderer.material = new Material(cardShader);
+         meshRenderer = this.GetComponent<MeshRenderer>();
+         propertyBlock = new MaterialPropertyBlock();
+         meshRenderer.SetPropertyBlock(propertyBlock);
       }
 
-      public Sequence FlipCard(float time)
+      public Sequence FlipCard(float time, bool faceUp)
       {
+         FaceUp = faceUp;
          var seq = DOTween.Sequence();
-         seq.Append(transform.DORotate(Vector3.up * 180, time));
+         seq.Append(transform.DORotate(faceUp ? Vector3.zero : Vector3.up * 180, time));
          return seq;
       }
 

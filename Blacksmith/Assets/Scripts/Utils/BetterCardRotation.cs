@@ -2,6 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Hides listed GameObjects for when card is rotated away from the camera.
+/// </summary>
 [ExecuteInEditMode]
 public class BetterCardRotation : MonoBehaviour
 {
