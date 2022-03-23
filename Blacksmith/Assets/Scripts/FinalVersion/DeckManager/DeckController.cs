@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DeckController : MonoBehaviour
+public class DeckController 
 {
    private List<CardBase> cardHolder;
 
@@ -25,12 +25,18 @@ public class DeckController : MonoBehaviour
 
    public CardBase DrawCardAt(int i)
    {
-      return i < cardHolder.Count ? cardHolder[0] : null;
+      if(i < cardHolder.Count)
+      {
+         var drawnCard = cardHolder[i];
+         cardHolder.Remove(drawnCard);
+         return drawnCard;
+      }
+      return null;
    }
 
    public bool AddCardAt(CardBase card, int i)
    {
-      if (i < cardHolder.Count)
+      if (i == 0 || i < cardHolder.Count)
       {
          cardHolder.Insert(i, card);
          return true;

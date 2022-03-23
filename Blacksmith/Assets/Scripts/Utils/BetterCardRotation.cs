@@ -12,12 +12,12 @@ public class BetterCardRotation : MonoBehaviour
 
     private void Update ()
     {
-        var cam = Camera.current;
-        bool passedThroughColliderOnCard = cam != null && Vector3.Dot(transform.forward, cam.transform.position - transform.position) > 0.0f;
+        var cam = Camera.main;
+        bool backIsFacing = cam != null && Vector3.Dot(transform.forward, cam.transform.position - transform.position) > 0.0f;
 
-        if (passedThroughColliderOnCard != showingBack)
+        if (backIsFacing != showingBack)
         {
-            showingBack = passedThroughColliderOnCard;
+            showingBack = backIsFacing;
             foreach (var obj in HideWhenBack)
                     obj.SetActive(!showingBack);
         }

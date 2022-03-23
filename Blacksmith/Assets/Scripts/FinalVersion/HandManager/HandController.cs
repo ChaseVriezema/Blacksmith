@@ -5,11 +5,6 @@ using UnityEngine;
 public class HandController
 {
 
-    public interface IHandControllerPresenter
-    {
-        
-    }
-    
     private List<CardBase> cardsHeld;
     private GameController.Player owner;
     public GameController.Player Owner => owner;
@@ -19,12 +14,19 @@ public class HandController
         cardsHeld = new List<CardBase>();
         this.owner = owner;
     }
-    
 
     public bool AddCard(CardBase card, bool faceUp = true)
     {
         cardsHeld.Add(card);
         return true;
+    }
+
+    public void RevealHand()
+    {
+        foreach(CardBase card in cardsHeld)
+        {
+            card.FaceUp = true;
+        }
     }
 
     public CardBase RemoveCard(CardBase card)
@@ -38,5 +40,28 @@ public class HandController
         var retList = cardsHeld;
         cardsHeld.Clear();
         return retList;
+    }
+
+    public int CalculateHandTotal(bool includeFaceDown = false)
+    {
+        int cardSum = 0;
+        int numberOfAces = 0;
+        string logString = $"{owner}'s Hand Total of ";
+        foreach(CardBase card in cardsHeld)
+        {
+            logString += $"{card.ToString()}, ";
+            var playingCard = card as PlayingCard;
+            if(includeFaceDown && !playingCard.FaceUp) continue;
+            if(playingCard.CardValue == PlayingCard.PlayingCardValue.Ace)
+            {
+                numberOfAces ++;
+            }
+            else
+            {
+                cardSum += Mathf.Min(10, (int)playingCard.CardValue + 1);
+            }
+        }
+        Debug.Log($"{logString} is {(cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces)}.");
+        return cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces;
     }
 }

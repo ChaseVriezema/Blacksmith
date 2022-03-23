@@ -6,6 +6,8 @@ public abstract class GameController
 {
     public enum Player { Player, Dealer }
 
+    public enum GameState { Initialize, Playing, Finished, Completed}
+
     public interface IGameModel
     {
 
@@ -13,7 +15,10 @@ public abstract class GameController
 
     public interface IGamePresenter
     {
-        
+        public void InitDeck();
+
+        public void UpdateScore(Player player, int score);
+
     }
     
     public class GameConfig
@@ -48,5 +53,5 @@ public abstract class GameController
 
     public abstract void UpdateScores();
 
-    public abstract int CalculateTotal();
+    public abstract int CalculateTotal(Player player, bool includeFaceDown);
 }
