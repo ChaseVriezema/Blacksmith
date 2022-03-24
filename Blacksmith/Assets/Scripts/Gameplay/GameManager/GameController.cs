@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 
 public abstract class GameController 
 {
@@ -17,8 +17,8 @@ public abstract class GameController
         gameConfig = config;
         
     }
-    public abstract IEnumerator InitGame();
-    public abstract IEnumerator RunGame();
-    public abstract IEnumerator CompleteGame();
+
+    public Action OnComplete;
+    public abstract void StartGame();
     
 }

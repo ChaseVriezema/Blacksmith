@@ -65,8 +65,8 @@ public class PlayingCardPresenter : MonoBehaviour
           FaceUp = faceUp;
           Name = card.CardValue.ToString();
           Value = "";
-          CardSprite = GameSettings.Instance.SuitIcons[(int)card.CardSuit];
-          CardColor = GameSettings.Instance.SuitColors[(int)card.CardSuit];
+          CardSprite = GameSettings.Instance.Settings.SuitIcons[(int)card.CardSuit];
+          CardColor = GameSettings.Instance.Settings.SuitColors[(int)card.CardSuit];
           cardId = card.Id;
       }
 

@@ -1,17 +1,9 @@
 using System.Collections.Generic;
 
-
 public class HandController
 {
 
-    private List<CardBase> cardsHeld;
-    public GameController.Player Owner { get; private set; }
-
-    public HandController(GameController.Player owner)
-    {
-        cardsHeld = new List<CardBase>();
-        Owner = owner;
-    }
+    private List<CardBase> cardsHeld = new List<CardBase>();
 
     public bool AddCard(CardBase card, bool faceUp = true)
     {

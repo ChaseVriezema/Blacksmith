@@ -15,7 +15,7 @@ public static class GameFactory
 
     private static BlackjackController CreateBlackjack(BlackjackController.BlackjackGameConfig config)
     {
-        var presenterObj = GameObject.Instantiate(GameSettings.Instance.BlackjackPresenter);
+        var presenterObj = GameObject.Instantiate(GameSettings.Instance.Settings.BlackjackPresenter);
         var presenter = presenterObj.GetComponent<BlackjackPresenter>();
         var model = new BlackjackModel();
         

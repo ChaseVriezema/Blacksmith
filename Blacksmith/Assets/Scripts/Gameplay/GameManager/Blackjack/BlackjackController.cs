@@ -1,7 +1,7 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
+
 
 public class BlackjackController : GameController, BlackjackPresenter.IBlackjackPresenterController
 {
@@ -11,13 +11,17 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
 
         public void DrawCardForPlayer(CardBase card, GameController.Player player, bool faceUp = true);
 
-        public void DisplayMessage(string message, float duration);
+        public void DisplayMessage(string message);
 
         public void StandForPlayer(GameController.Player player);
 
         public void RevealPlayerHand(GameController.Player player);
 
+        public void ShowResetButton();
+
         public void ClearBoard();
+
+        public Action TurnAnimationComplete { get; set; }
     }
 
     public interface IBlackjackModel
@@ -25,7 +29,9 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         public DeckController Deck { get; }
         public HandController PlayerHand { get; }
         public HandController DealerHand { get; }
-        bool[] IsStanding { get; }
+
+        bool GetPlayerIsStanding(Player player);
+        bool GetEveryPlayerIsStanding();
         void StandPlayer(Player player);
         public void AddCard(GameController.Player player, CardBase card, bool faceUp = true);
         public List<PlayingCard> GetCardsInHand (GameController.Player player);
@@ -47,64 +53,67 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         blackjackPresenter = presenter;
     }
 
-    public override IEnumerator InitGame()
+    public override void StartGame()
     {
         CreateDeck();
         blackjackModel.Deck.Shuffle();
         DealCards();
         currentTurn = Player.Player;
-        RunGame();
-        yield return 0;
     }
 
-    public override IEnumerator RunGame()
-    {
-        bool gameOver = false;
-        while(!gameOver)
-        {
-            if(blackjackModel.IsStanding[(int)currentTurn])
-                NextTurn();
-            
-            if(currentTurn == Player.Player)
-            {
-                Debug.Log("Awaiting Player Draw");
-                yield return new WaitUntil(() => currentTurn != Player.Player);
-            }
-            else
-            {
-                var currentHandTotal = CalculateTotal(Player.Dealer, true);
-                if(currentHandTotal < blackjackConfig.AlwaysHitBelow)
-                {
-                    HitForPlayer(Player.Dealer);
-                }
-                else
-                {
-                    StandForPlayer(Player.Dealer);
-                }
-            }
-
-            gameOver = CheckForGameOver();
-        }
-
-        Debug.Log("Game Is Over");
-    }
-
-    public override IEnumerator CompleteGame()
+    public void CompleteGame(Player winner)
     {
         blackjackModel.DealerHand.RevealHand();
         blackjackPresenter.RevealPlayerHand(Player.Dealer);
         UpdateScores();
-        var winner  = GetWinner();
-        blackjackPresenter.DisplayMessage($"{winner} Wins!", 9f);
-        yield return new WaitForSeconds(10f);
+        blackjackPresenter.DisplayMessage($"{winner} Wins!");
+        blackjackPresenter.ShowResetButton();
+    }
+
+    public void EndGame()
+    {
+        OnComplete();
         blackjackPresenter.ClearBoard();
+    }
+
+    public void DoTurn(Player player)
+    {
+        if(blackjackModel.GetPlayerIsStanding(player))
+            EndTurn();
+
+        if(player == Player.Dealer)
+        {
+            var currentHandTotal = CalculateTotal(Player.Dealer, true);
+            if(currentHandTotal < blackjackConfig.AlwaysHitBelow)
+            {
+                HitForPlayer(Player.Dealer);
+            }
+            else
+            {
+                StandForPlayer(Player.Dealer);
+            }
+        }
+    }
+
+    public void EndTurn()
+    {
+        blackjackPresenter.TurnAnimationComplete -= EndTurn;
+        if(CheckForGameOver())
+        {
+            CompleteGame(GetWinner());
+        }
+        else
+        {
+            currentTurn = currentTurn == Player.Player ? Player.Dealer : Player.Player;
+            DoTurn(currentTurn);
+        }
     }
 
     public void CreateDeck()
     {
         for (int i = 0; i < 52; i++)
         {
-            var newCard = new PlayingCard((i % 13), (i % 4));
+            var newCard = CardFactory.CreatePlayingCard((i % 13), (i % 4));
             var added = blackjackModel.Deck.AddCardToTop(newCard);
             Debug.Log($"Added a {newCard.ToString()} to the deck. Successful = {added}.");
         }
@@ -112,33 +121,33 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
 
     public void DealCards()
     {
-        HitForPlayer(Player.Player);
-        HitForPlayer(Player.Dealer, false);
-        HitForPlayer(Player.Player);
-        HitForPlayer(Player.Dealer);
+        DealToPlayer(Player.Player);
+        DealToPlayer(Player.Dealer, false);
+        DealToPlayer(Player.Player);
+        DealToPlayer(Player.Dealer);
+        UpdateScores();
     }
 
-    public void HitForPlayer(Player player, bool faceUp = true)
+    public void DealToPlayer(Player player, bool faceUp = true)
     {
         var drawCard = blackjackModel.Deck.DrawCard() as PlayingCard;
         Debug.Log($"Drew the {drawCard.ToString()} for {player}");
         blackjackModel.AddCard(player, drawCard, faceUp);
-        CalculateTotal(player);
-
         blackjackPresenter.DrawCardForPlayer(drawCard, player, faceUp);
+    }
+
+    public void HitForPlayer(Player player)
+    {
+        blackjackPresenter.TurnAnimationComplete += EndTurn;
+        DealToPlayer(player);
         UpdateScores();
-        NextTurn();
     }
 
     public void StandForPlayer(Player player)
     {
-        blackjackModel.IsStanding[(int)player] = true;
-        NextTurn();
-    }
-
-    public void NextTurn()
-    {
-        currentTurn = currentTurn == Player.Player ? Player.Dealer : Player.Player;
+        blackjackPresenter.TurnAnimationComplete += EndTurn;
+        blackjackModel.StandPlayer(player);
+        blackjackPresenter.StandForPlayer(player);
     }
 
     public bool CheckForGameOver()
@@ -146,7 +155,7 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         if(CalculateTotal(Player.Player) > 21 || CalculateTotal(Player.Dealer) > 21)
             return true;
 
-        if(blackjackModel.IsStanding.Any(p => p == false))
+        if(!blackjackModel.GetEveryPlayerIsStanding())
             return false;
 
         return true;
@@ -203,42 +212,4 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
     }
 }
 
-public class BlackjackModel : BlackjackController.IBlackjackModel
-{
-    public DeckController Deck { get; private set; }
 
-    private HandController[] hands;
-    public HandController PlayerHand => hands[(int)GameController.Player.Player];
-    public HandController DealerHand => hands[(int)GameController.Player.Player];
-
-    private bool[] isStanding;
-    public bool[] IsStanding => isStanding;
-
-    public BlackjackModel() 
-    {
-        Deck = new DeckController();
-        hands = new HandController[2];
-        for(int i = 0; i < hands.Length; i++)
-        {
-            hands[i] = new HandController((GameController.Player)i);
-        }
-        isStanding = new bool[2]{false, false};
-    }
-
-    public void StandPlayer(GameController.Player player)
-    {
-        isStanding[(int)player] = true;
-    }
-
-    public void AddCard(GameController.Player player, CardBase card, bool faceUp = true)
-    {
-        hands[(int) player].AddCard(card, faceUp);
-    }
-
-    public List<PlayingCard> GetCardsInHand (GameController.Player player)
-    {
-        return hands[(int) player].GetHeldCards().Cast<PlayingCard>().ToList();
-    }
-
-
-}

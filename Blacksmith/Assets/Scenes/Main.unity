@@ -801,17 +801,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c5985e9238b2a740b9259bd0c2de6ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SuitColors:
-  - {r: 0.8773585, g: 0.73165923, b: 0, a: 0}
-  - {r: 0, g: 0.7122909, b: 0.9716981, a: 0}
-  - {r: 0, g: 0.745283, b: 0.05166921, a: 0}
-  - {r: 0.764151, g: 0.07893507, b: 0, a: 0}
-  SuitIcons:
-  - {fileID: 21300000, guid: e4c17131ab64344c5b36453800ef699f, type: 3}
-  - {fileID: 21300000, guid: 9fc0c2b2695a0484bbc4ca815a4b0120, type: 3}
-  - {fileID: 21300000, guid: 287f93ceb8164404192ef0a9732b3fee, type: 3}
-  - {fileID: 21300000, guid: d9dd9a58c6d62407a8e0647743f45f86, type: 3}
-  BlackjackPresenter: {fileID: 2148541231057666494, guid: ffa435a674d2bc6429c6507be6bfd912, type: 3}
+  Settings: {fileID: 11400000, guid: e7faeb63f04062d46954d804cd6ac8d3, type: 2}
 --- !u!4 &1913213751
 Transform:
   m_ObjectHideFlags: 0

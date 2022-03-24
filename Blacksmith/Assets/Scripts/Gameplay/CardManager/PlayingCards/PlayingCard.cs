@@ -1,4 +1,3 @@
-
 public class PlayingCard : CardBase
 {
    public enum PlayingCardValue {Ace, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King }
@@ -10,10 +9,10 @@ public class PlayingCard : CardBase
    public PlayingCardSuit CardSuit { get; protected set; }
    
 
-   public PlayingCard(int value, int suit)
+   public PlayingCard(int id, PlayingCardValue value, PlayingCardSuit suit) : base(id)
    {
-      CardValue = (PlayingCardValue)value;
-      CardSuit = (PlayingCardSuit)suit;
+      CardValue = value;
+      CardSuit = suit;
    }
 
     public override string ToString()

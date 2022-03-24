@@ -1,12 +1,11 @@
-
 public abstract class CardBase
 {
     public int Id { get; protected set; }
     public bool FaceUp { get; set; }
 
-
-    public CardBase()
+    public CardBase (int id)
     {
-        Id = CardIdFactory.GetUniqueId();
+        Id = id;
     }
+
 }

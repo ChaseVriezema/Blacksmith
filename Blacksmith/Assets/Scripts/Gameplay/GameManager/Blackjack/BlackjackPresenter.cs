@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -8,12 +9,15 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     public interface IBlackjackPresenterController
     {
-        public void HitForPlayer(GameController.Player player, bool faceUp = true);
+        public void HitForPlayer(GameController.Player player);
         public void StandForPlayer(GameController.Player player);
+        public void EndGame();
     }
     private IBlackjackPresenterController blackjackController;
     [SerializeField] private Button hitButton;
     [SerializeField] private Button standButton;
+
+    [SerializeField] private Button resetButton;
 
     [SerializeField] private HandPresenter playerHand;
     [SerializeField] private HandPresenter dealerHand;
@@ -27,11 +31,14 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     [SerializeField] private GameObject cardPrefab;
 
+    public Action TurnAnimationComplete { get; set; }
+
     public void InitBlackjackPresenter(IBlackjackPresenterController controller)
     {
         blackjackController = controller;
         hitButton.onClick.AddListener(PressHitButton);
         standButton.onClick.AddListener(PressStandButton);
+        resetButton.onClick.AddListener(PressResetButton);
         messageText.text = "";
     }
 
@@ -58,9 +65,15 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
         blackjackController.StandForPlayer(GameController.Player.Player);
     }
 
+    public void PressResetButton()
+    {
+        blackjackController.EndGame();
+    }
+
     public void StandForPlayer(GameController.Player player)
     {
         //TODO: snazzy animation here
+        TurnAnimationComplete();
     }
 
     public void RevealPlayerHand(GameController.Player player)
@@ -85,18 +98,24 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
         }
     }
 
+    public void ShowResetButton()
+    {
+        DOTween.Sequence()
+        .Append(hitButton.transform.DOScale(Vector3.zero, 0.33f).SetEase(Ease.OutSine))
+        .Insert(0f, standButton.transform.DOScale(Vector3.zero, 0.33f).SetEase(Ease.OutSine))
+        .AppendCallback(() => resetButton.gameObject.SetActive(true))
+        .Append(resetButton.transform.DOScale(Vector3.zero, 0.33f).From().SetEase(Ease.OutSine));
+    }
+
     public void ClearBoard()
     {
         //TODO: snazzy animation before destroy
         Destroy(this.gameObject);
     }
 
-    public void DisplayMessage(string message, float duration)
+    public void DisplayMessage(string message)
     {
-        DOTween.Sequence()
-        .AppendCallback(() => messageText.text = message)
-        .AppendInterval(duration)
-        .AppendCallback(() => messageText.text = "");
+        messageText.text = message;
     }
 
     public void DrawCardForPlayer(CardBase card, GameController.Player player, bool faceUp = true)
@@ -110,11 +129,16 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
         var seq = DOTween.Sequence();
         seq.Append(cardObj.transform.DOMove(slot.transform.position, 0.33f).SetEase(Ease.OutSine));
         seq.Insert(0.1f, cardObj.GetComponent<PlayingCardPresenter>().FlipCard(0.23f, faceUp));
+
+        seq.OnComplete(() => {
+            if(TurnAnimationComplete != null) 
+                TurnAnimationComplete();
+        });
     }
 
     public GameObject CreateCardOnDeck(CardBase card)
     {
-        var obj = Instantiate(cardPrefab);
+        var obj = Instantiate(cardPrefab, this.transform);
         cardPrefab.transform.position = deckTransform.position;
         obj.transform.Rotate(Vector3.up * 180.0f, Space.World);
         obj.GetComponent<PlayingCardPresenter>().Init(card as PlayingCard, true);
