@@ -5,6 +5,8 @@ public class BlackjackModel : BlackjackController.IBlackjackModel
 {
     public DeckController Deck { get; private set; }
 
+    public GameController.Player currentTurn { get; set; }
+
     private Dictionary<GameController.Player, BlackjackPlayerModel> players;
     public HandController PlayerHand => players[GameController.Player.Player].Hand;
     public HandController DealerHand => players[GameController.Player.Dealer].Hand;

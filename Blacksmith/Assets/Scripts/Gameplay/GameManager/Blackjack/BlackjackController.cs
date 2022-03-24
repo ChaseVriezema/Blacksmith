@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class BlackjackController : GameController, BlackjackPresenter.IBlackjackPresenterController
+public class BlackjackController : GameController
 {
     public interface IBlackjackPresenter
     {
@@ -22,6 +22,9 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         public void ClearBoard();
 
         public Action TurnAnimationComplete { get; set; }
+        public Action HitButtonPressed { get; set; }
+        public Action StandButtonPressed { get; set; }
+        public Action ResetButtonPressed { get; set; }
     }
 
     public interface IBlackjackModel
@@ -29,6 +32,8 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         public DeckController Deck { get; }
         public HandController PlayerHand { get; }
         public HandController DealerHand { get; }
+
+        public Player currentTurn { get; set; }
 
         bool GetPlayerIsStanding(Player player);
         bool GetEveryPlayerIsStanding();
@@ -45,7 +50,7 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
     private BlackjackGameConfig blackjackConfig => (BlackjackGameConfig) gameConfig;
     private IBlackjackModel blackjackModel;
     private IBlackjackPresenter blackjackPresenter;
-    private Player currentTurn;
+    
 
     public BlackjackController(BlackjackGameConfig config, IBlackjackModel model, BlackjackPresenter presenter ) : base(config)
     {
@@ -58,7 +63,11 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         CreateDeck();
         blackjackModel.Deck.Shuffle();
         DealCards();
-        currentTurn = Player.Player;
+        blackjackModel.currentTurn = Player.Player;
+
+        blackjackPresenter.HitButtonPressed += () => HitForPlayer(Player.Player);
+        blackjackPresenter.StandButtonPressed += () => StandForPlayer(Player.Player);
+        blackjackPresenter.ResetButtonPressed += () => EndGame();
     }
 
     public void CompleteGame(Player winner)
@@ -104,8 +113,8 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
         }
         else
         {
-            currentTurn = currentTurn == Player.Player ? Player.Dealer : Player.Player;
-            DoTurn(currentTurn);
+            blackjackModel.currentTurn = blackjackModel.currentTurn == Player.Player ? Player.Dealer : Player.Player;
+            DoTurn(blackjackModel.currentTurn);
         }
     }
 

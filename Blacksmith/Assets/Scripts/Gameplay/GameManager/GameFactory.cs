@@ -25,7 +25,6 @@ public static class GameFactory
                     presenter
                 );
                 
-        presenter.InitBlackjackPresenter(controller);
 
         return controller;
     }

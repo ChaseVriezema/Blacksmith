@@ -7,13 +7,6 @@ using DG.Tweening;
 public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackPresenter
 {
 
-    public interface IBlackjackPresenterController
-    {
-        public void HitForPlayer(GameController.Player player);
-        public void StandForPlayer(GameController.Player player);
-        public void EndGame();
-    }
-    private IBlackjackPresenterController blackjackController;
     [SerializeField] private Button hitButton;
     [SerializeField] private Button standButton;
 
@@ -33,12 +26,17 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     public Action TurnAnimationComplete { get; set; }
 
-    public void InitBlackjackPresenter(IBlackjackPresenterController controller)
+    public Action HitButtonPressed { get; set; }
+
+    public Action StandButtonPressed { get; set; }
+
+    public Action ResetButtonPressed { get; set; }
+
+    public void Start()
     {
-        blackjackController = controller;
-        hitButton.onClick.AddListener(PressHitButton);
-        standButton.onClick.AddListener(PressStandButton);
-        resetButton.onClick.AddListener(PressResetButton);
+        hitButton.onClick.AddListener(() => HitButtonPressed());
+        standButton.onClick.AddListener(() => StandButtonPressed());
+        resetButton.onClick.AddListener(() => ResetButtonPressed());
         messageText.text = "";
     }
 
@@ -53,21 +51,6 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
                 dealerScore.text = total.ToString();
                 break;
         }
-    }
-
-    public void PressHitButton()
-    {
-        blackjackController.HitForPlayer(GameController.Player.Player);
-    }
-
-    public void PressStandButton()
-    {
-        blackjackController.StandForPlayer(GameController.Player.Player);
-    }
-
-    public void PressResetButton()
-    {
-        blackjackController.EndGame();
     }
 
     public void StandForPlayer(GameController.Player player)
