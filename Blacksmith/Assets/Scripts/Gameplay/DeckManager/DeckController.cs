@@ -1,25 +1,18 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 public class DeckController 
 {
-   private List<CardBase> cardHolder;
-
-   public bool IsEmpty => cardHolder.Count == 0;
-
-   public DeckController()
-   {
-      cardHolder = new List<CardBase>();
-   }
+   private List<CardBase> deck = new List<CardBase>();
+   public bool IsEmpty => deck.Count == 0;
    
    public void Shuffle()
    {
-      for (int i = 0; i < cardHolder.Count; i++) {
-         var temp = cardHolder[i];
-         int randomIndex = Random.Range(i, cardHolder.Count);
-         cardHolder[i] = cardHolder[randomIndex];
-         cardHolder[randomIndex] = temp;
+      for (int i = 0; i < deck.Count; i++) {
+         var temp = deck[i];
+         int randomIndex = UnityEngine.Random.Range(i, deck.Count);
+         deck[i] = deck[randomIndex];
+         deck[randomIndex] = temp;
       }
    }
 
@@ -30,29 +23,28 @@ public class DeckController
 
    public CardBase DrawCardAt(int i)
    {
-      if(i < cardHolder.Count)
+      if(i < deck.Count)
       {
-         var drawnCard = cardHolder[i];
-         cardHolder.Remove(drawnCard);
+         var drawnCard = deck[i];
+         deck.Remove(drawnCard);
          return drawnCard;
       }
-      return null;
+      throw new IndexOutOfRangeException($"Cannot draw card at {i}. Deck does not have index {i}.");
    }
 
    public bool AddCardAt(CardBase card, int i)
    {
-      if (i == 0 || i < cardHolder.Count)
+      if (i >= 0 && i <= deck.Count)
       {
-         cardHolder.Insert(i, card);
+         deck.Insert(i, card);
          return true;
       }
-
-      return false;
+      throw new IndexOutOfRangeException($"Cannot add card at {i}. Deck does not have index {i}.");
    }
 
    public bool AddCardToBottom(CardBase card)
    {
-      cardHolder.Add(card);
+      deck.Add(card);
       return true;
    }
 

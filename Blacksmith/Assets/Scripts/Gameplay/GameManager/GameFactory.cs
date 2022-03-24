@@ -1,8 +1,7 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
-public class GameFactory
+public static class GameFactory
 {
     public static GameController CreateGame(GameController.GameConfig config)
     {
@@ -11,12 +10,13 @@ public class GameFactory
             case GameController.GameConfig.GameType.Blackjack:
                 return CreateBlackjack(config as BlackjackController.BlackjackGameConfig);
         }
-        return null;
+        throw new NotImplementedException();
     }
 
     private static BlackjackController CreateBlackjack(BlackjackController.BlackjackGameConfig config)
     {
-        var presenter = GameObject.Instantiate(GameSettings.Instance.BlackjackPresenter.gameObject).GetComponent<BlackjackPresenter>();
+        var presenterObj = GameObject.Instantiate(GameSettings.Instance.BlackjackPresenter);
+        var presenter = presenterObj.GetComponent<BlackjackPresenter>();
         var model = new BlackjackModel();
         
         var controller = new BlackjackController(

@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4218901782665657236}
   m_LocalRotation: {x: -0, y: 0.026177015, z: -0, w: 0.99965733}
-  m_LocalPosition: {x: -1.74, y: -2.65, z: 9.03}
+  m_LocalPosition: {x: 0, y: 1.32, z: 8}
   m_LocalScale: {x: 1.0089039, y: 1.4124655, z: 0.40356153}
   m_Children:
   - {fileID: 4218901783339063174}
@@ -130,8 +130,6 @@ MonoBehaviour:
   FaceUp: 0
   nameText: {fileID: 4218901783339063175}
   valueText: {fileID: 4218901784085627306}
-  meshRenderer: {fileID: 6229301393905262305}
-  cardShader: {fileID: -6465566751694194690, guid: 1ed9974d0efe340a79f8f571486433ad, type: 3}
   glow: {fileID: 0}
 --- !u!1 &4218901783339063173
 GameObject:

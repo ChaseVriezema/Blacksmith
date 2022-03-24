@@ -1,18 +1,16 @@
-using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+
 
 public class HandController
 {
 
     private List<CardBase> cardsHeld;
-    private GameController.Player owner;
-    public GameController.Player Owner => owner;
+    public GameController.Player Owner { get; private set; }
 
     public HandController(GameController.Player owner)
     {
         cardsHeld = new List<CardBase>();
-        this.owner = owner;
+        Owner = owner;
     }
 
     public bool AddCard(CardBase card, bool faceUp = true)
@@ -46,33 +44,5 @@ public class HandController
     public CardBase[] GetHeldCards()
     {
         return cardsHeld.ToArray();
-    }
-
-    public int CalculateHandTotal(bool includeFaceDown = false)
-    {
-        int cardSum = 0;
-        int numberOfAces = 0;
-        string logString = $"{owner}'s Hand Total of ";
-        foreach(CardBase card in cardsHeld)
-        {
-            logString += $"{card.ToString()}, ";
-            var playingCard = card as PlayingCard;
-            if(!includeFaceDown && !playingCard.FaceUp) continue;
-            if(playingCard.CardValue == PlayingCard.PlayingCardValue.Ace)
-            {
-                numberOfAces ++;
-            }
-            else
-            {
-                cardSum += Mathf.Min(10, (int)playingCard.CardValue + 1);
-            }
-        }
-        int total;
-        if(numberOfAces == 0)
-            total = cardSum;
-        else
-            total = cardSum <= 10 ? cardSum + 11 + (numberOfAces - 1) : cardSum + numberOfAces;
-        Debug.Log($"{logString} is {total}.");
-        return total;
     }
 }

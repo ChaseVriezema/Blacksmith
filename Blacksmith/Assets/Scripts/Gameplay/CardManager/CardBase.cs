@@ -1,18 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
-public abstract  class CardBase
+public abstract class CardBase
 {
-    private int id;
-    public int Id => id;
-
-    private bool faceUp;
-    public bool FaceUp;
+    public int Id { get; protected set; }
+    public bool FaceUp { get; set; }
 
 
     public CardBase()
     {
-        id = CardIdFactory.GetUniqueId();
+        Id = CardIdFactory.GetUniqueId();
     }
 }

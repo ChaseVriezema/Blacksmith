@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -20,7 +18,7 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
     [SerializeField] private HandPresenter playerHand;
     [SerializeField] private HandPresenter dealerHand;
 
-    [SerializeField] private DeckPresenter deckPresenter;
+    [SerializeField] private Transform deckTransform;
 
     [SerializeField] private TextMeshProUGUI playerScore;
     [SerializeField] private TextMeshProUGUI dealerScore;
@@ -62,7 +60,7 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     public void StandForPlayer(GameController.Player player)
     {
-        //snazzy animation here
+        //TODO: snazzy animation here
     }
 
     public void RevealPlayerHand(GameController.Player player)
@@ -89,7 +87,7 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     public void ClearBoard()
     {
-        //snazzy animation before destroy
+        //TODO: snazzy animation before destroy
         Destroy(this.gameObject);
     }
 
@@ -116,7 +114,8 @@ public class BlackjackPresenter : MonoBehaviour, BlackjackController.IBlackjackP
 
     public GameObject CreateCardOnDeck(CardBase card)
     {
-        var obj = Instantiate(cardPrefab, deckPresenter.transform);
+        var obj = Instantiate(cardPrefab);
+        cardPrefab.transform.position = deckTransform.position;
         obj.transform.Rotate(Vector3.up * 180.0f, Space.World);
         obj.GetComponent<PlayingCardPresenter>().Init(card as PlayingCard, true);
 

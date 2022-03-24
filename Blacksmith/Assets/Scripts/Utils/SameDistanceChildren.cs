@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 
 //TODO: Copied from fate. Will be extended to be a full hand script
 

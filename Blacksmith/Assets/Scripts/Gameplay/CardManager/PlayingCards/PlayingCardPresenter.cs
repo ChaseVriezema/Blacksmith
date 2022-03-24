@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using DG.Tweening;
@@ -7,7 +5,7 @@ using DG.Tweening;
 public class PlayingCardPresenter : MonoBehaviour
 {
 
-      public bool FaceUp;
+      [HideInInspector] public bool FaceUp;
       [SerializeField] private TextMeshPro nameText;
       [SerializeField] private TextMeshPro valueText;
       [SerializeField] private GameObject glow;
@@ -17,6 +15,8 @@ public class PlayingCardPresenter : MonoBehaviour
 
       private MeshRenderer meshRenderer;
       private MaterialPropertyBlock propertyBlock;
+
+      private int cardId;
 
       public string Name
       {
@@ -41,7 +41,8 @@ public class PlayingCardPresenter : MonoBehaviour
 
       public Color CardColor
       {
-         set {
+         set 
+         {
             propertyBlock.SetColor(cardColor, value);
             meshRenderer.SetPropertyBlock(propertyBlock);
          }
@@ -59,14 +60,6 @@ public class PlayingCardPresenter : MonoBehaviour
          meshRenderer.SetPropertyBlock(propertyBlock);
       }
 
-      public Sequence FlipCard(float time, bool faceUp)
-      {
-         FaceUp = faceUp;
-         var seq = DOTween.Sequence();
-         seq.Append(transform.DORotate(faceUp ? Vector3.zero : Vector3.up * 180, time));
-         return seq;
-      }
-
       public void Init(PlayingCard card, bool faceUp)
       {
           FaceUp = faceUp;
@@ -74,6 +67,14 @@ public class PlayingCardPresenter : MonoBehaviour
           Value = "";
           CardSprite = GameSettings.Instance.SuitIcons[(int)card.CardSuit];
           CardColor = GameSettings.Instance.SuitColors[(int)card.CardSuit];
-          
+          cardId = card.Id;
+      }
+
+      public Sequence FlipCard(float time, bool faceUp)
+      {
+         FaceUp = faceUp;
+         var seq = DOTween.Sequence();
+         seq.Append(transform.DORotate(faceUp ? Vector3.zero : Vector3.up * 180, time));
+         return seq;
       }
 }

@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 
-/// <summary>
-/// Controller for a simple Blackjack game. 
-/// Utilizes BlackjackGameConfig for settings
-/// </summary>
 public class BlackjackController : GameController, BlackjackPresenter.IBlackjackPresenterController
 {
     public interface IBlackjackPresenter
@@ -27,9 +23,12 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
     public interface IBlackjackModel
     {
         public DeckController Deck { get; }
-        public HandController[] Hands { get; }
-        bool[] IsStanding {get;}
+        public HandController PlayerHand { get; }
+        public HandController DealerHand { get; }
+        bool[] IsStanding { get; }
         void StandPlayer(Player player);
+        public void AddCard(GameController.Player player, CardBase card, bool faceUp = true);
+        public List<PlayingCard> GetCardsInHand (GameController.Player player);
     }
 
     public class BlackjackGameConfig : GameConfig
@@ -38,11 +37,11 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
     }
 
     private BlackjackGameConfig blackjackConfig => (BlackjackGameConfig) gameConfig;
-    private BlackjackModel blackjackModel;
+    private IBlackjackModel blackjackModel;
     private IBlackjackPresenter blackjackPresenter;
     private Player currentTurn;
 
-    public BlackjackController(BlackjackGameConfig config, BlackjackModel model, BlackjackPresenter presenter ) : base(config)
+    public BlackjackController(BlackjackGameConfig config, IBlackjackModel model, BlackjackPresenter presenter ) : base(config)
     {
         blackjackModel = model;
         blackjackPresenter = presenter;
@@ -92,7 +91,7 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
 
     public override IEnumerator CompleteGame()
     {
-        blackjackModel.Hands[(int)Player.Dealer].RevealHand();
+        blackjackModel.DealerHand.RevealHand();
         blackjackPresenter.RevealPlayerHand(Player.Dealer);
         UpdateScores();
         var winner  = GetWinner();
@@ -123,7 +122,7 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
     {
         var drawCard = blackjackModel.Deck.DrawCard() as PlayingCard;
         Debug.Log($"Drew the {drawCard.ToString()} for {player}");
-        blackjackModel.Hands[(int) player].AddCard(drawCard, faceUp);
+        blackjackModel.AddCard(player, drawCard, faceUp);
         CalculateTotal(player);
 
         blackjackPresenter.DrawCardForPlayer(drawCard, player, faceUp);
@@ -172,8 +171,7 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
 
     public int CalculateTotal(Player player, bool includeFaceDown = false)
     {
-        var hand = blackjackModel.Hands[(int)player];
-        var cards = hand.GetHeldCards();
+        var cards = blackjackModel.GetCardsInHand(player);
 
         int cardSum = 0;
         int numberOfAces = 0;
@@ -207,22 +205,22 @@ public class BlackjackController : GameController, BlackjackPresenter.IBlackjack
 
 public class BlackjackModel : BlackjackController.IBlackjackModel
 {
-
-    private DeckController deck;
-    public DeckController Deck => deck;
+    public DeckController Deck { get; private set; }
 
     private HandController[] hands;
-    public HandController[] Hands => hands;
+    public HandController PlayerHand => hands[(int)GameController.Player.Player];
+    public HandController DealerHand => hands[(int)GameController.Player.Player];
 
     private bool[] isStanding;
     public bool[] IsStanding => isStanding;
 
     public BlackjackModel() 
     {
-        deck = new DeckController();
+        Deck = new DeckController();
         hands = new HandController[2];
-        for(int i = 0; i < Hands.Length; i++){
-            Hands[i] = new HandController((GameController.Player)i);
+        for(int i = 0; i < hands.Length; i++)
+        {
+            hands[i] = new HandController((GameController.Player)i);
         }
         isStanding = new bool[2]{false, false};
     }
@@ -230,6 +228,16 @@ public class BlackjackModel : BlackjackController.IBlackjackModel
     public void StandPlayer(GameController.Player player)
     {
         isStanding[(int)player] = true;
+    }
+
+    public void AddCard(GameController.Player player, CardBase card, bool faceUp = true)
+    {
+        hands[(int) player].AddCard(card, faceUp);
+    }
+
+    public List<PlayingCard> GetCardsInHand (GameController.Player player)
+    {
+        return hands[(int) player].GetHeldCards().Cast<PlayingCard>().ToList();
     }
 
 

@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 
 public class PlayingCard : CardBase
 {
@@ -8,18 +5,15 @@ public class PlayingCard : CardBase
 
    public enum PlayingCardSuit {Air, Water, Earth, Fire}
 
-   private PlayingCardValue cardValue;
-   private PlayingCardSuit cardSuit;
+   public PlayingCardValue CardValue { get; private set; }
 
-   public PlayingCardValue CardValue => cardValue;
-
-   public PlayingCardSuit CardSuit => cardSuit;
+   public PlayingCardSuit CardSuit { get; protected set; }
    
 
    public PlayingCard(int value, int suit)
    {
-      cardValue = (PlayingCardValue)value;
-      cardSuit = (PlayingCardSuit)suit;
+      CardValue = (PlayingCardValue)value;
+      CardSuit = (PlayingCardSuit)suit;
    }
 
     public override string ToString()
